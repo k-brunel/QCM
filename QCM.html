@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QCM POO</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .qcm-container {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 20px;
+      width: 80%;
+      max-width: 600px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .question {
+      font-size: 18px;
+      margin-bottom: 15px;
+    }
+
+    .options {
+      margin-bottom: 20px;
+    }
+
+    .options label {
+      display: block;
+      margin: 10px 0;
+    }
+
+    button {
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    #answer {
+      background-color: #4c7aaf;
+    }
+
+    #next {
+      background-color: #4CAF50;
+    }
+
+    .score {
+      font-size: 20px;
+      font-weight: bold;
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    #numQuestion {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+    }
+
+    .incorrect-container {
+      margin-top: 20px;
+    }
+
+    .incorrect-container p {
+      font-size: 14px;
+      margin: 10px 0;
+    }
+
+    .incorrect-container .chosen {
+      color: green;
+    }
+
+    .incorrect-container .correct {
+      border: 2px solid green;
+      padding: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="qcm-container">
+    <div id="quiz">
+      <p class="question" id="question"></p>
+      <div class="options" id="options"></div>
+      <div>
+        <button id="answer">Réponse</button>
+        <button id="next">Suivant</button>
+      </div>
+    </div>
+    <div id="result" class="score" style="display: none;"></div>
+    <div id="incorrect-answers" class="incorrect-container" style="display: none;"></div>
+  </div>
+
+  <div id="numQuestion"><span id="CurrentNumQuestion">1</span>/<span id="NbQuestions"></span></div>
+
+  <script>
+const questions = [
+  {
+    question: "Quel est le principal objectif de la Programmation Orientée Objet (POO) ?",
+    options: ["Rendre les programmes plus rapides à exécuter", "Organiser le code en réutilisant les fonctions globales", "Modéliser des objets du monde réel dans le code", "Éviter l'utilisation des variables globales"],
+    answer: 2
+  },
+  {
+    question: "Quels sont les principes fondamentaux de la POO ?",
+    options: ["Encapsulation", "Héritage", "Polymorphisme", "Compilation", "Abstraction"],
+    answer: [0, 1, 2, 4] // Question à choix multiples
+  },
+  {
+    question: "Qu’est-ce qu’une classe en POO ?",
+    options: ["Une instance d’un objet", "Une structure de données spécifique à chaque langage", "Un plan ou un modèle pour créer des objets", "Une méthode utilisée pour encapsuler des variables globales"],
+    answer: 2
+  },
+  {
+    question: "Quelle est la différence principale entre une classe et un objet ?",
+    options: ["Une classe est un concept abstrait, un objet est une instance concrète", "Une classe ne peut contenir que des méthodes, alors qu’un objet contient des données", "Une classe est utilisée uniquement pour stocker des fonctions globales", "Il n'y a pas de différence entre une classe et un objet"],
+    answer: 0
+  },
+  {
+    question: "Quel terme décrit le mieux l’encapsulation en POO ?",
+    options: ["Partager toutes les données entre les classes", "Masquer les détails internes d’une classe tout en fournissant des méthodes publiques pour y accéder", "Utiliser des classes et des objets dans le même fichier", "Associer les données et les fonctions dans un module unique"],
+    answer: 1
+  },
+  {
+    question: "Qu’est-ce que le polymorphisme ?",
+    options: ["La capacité d’une méthode à accepter plusieurs types de données en entrée", "La capacité pour un objet de prendre plusieurs formes", "Une méthode utilisée pour gérer les erreurs de typage", "La capacité d’une classe à encapsuler plusieurs objets"],
+    answer: 1
+  },
+  {
+    question: "Quelle est l’utilité principale de l’héritage en POO ?",
+    options: ["Permettre à une classe d'utiliser directement des fonctions globales", "Réutiliser le code existant en permettant à une classe d’hériter des caractéristiques d’une autre", "Créer des classes totalement indépendantes les unes des autres", "Créer des classes qui ne partagent aucune donnée entre elles"],
+    answer: 1
+  },
+  {
+    question: "Une classe finale est :",
+    options: ["Non instanciable", "Une classe abstraite", "Une classe qui ne peut pas être héritée", "Une classe statique"],
+    answer: 2
+  },
+  {
+    question: "Qu'est-ce qu'un destructeur en POO ?",
+    options: ["Une méthode pour nettoyer les ressources d’un objet", "Une méthode utilisée pour créer un objet", "Une méthode abstraite", "Une méthode finale"],
+    answer: 0
+  },
+  {
+    question: "Une relation 'is-a' en POO correspond à :",
+    options: ["Une composition", "Une association", "Un héritage", "Une encapsulation"],
+    answer: 2
+  },
+  {
+    question: "Quel est le rôle du mot-clé \"super\" ou \"base\" (en fonction du laguage) dans une classe fille ?",
+    options: ["Appeler le constructeur de la classe parent", "Appeler une méthode statique", "Créer une méthode privée", "Appeler une méthode finale"],
+    answer: 0
+  },
+  {
+    question: "Qu’est-ce qu’un singleton ?",
+    options: ["Un objet unique dans le programme", "Une classe abstraite", "Une méthode utilisée pour limiter les dépendances", "Une classe finale"],
+    answer: 0
+  },
+
+  {
+    question: "Que permet la relation d'association en UML ?",
+    options: ["Représenter la composition", "Représenter une relation \"utilise\"", "Créer des classes abstraites", "Rendre les classes indépendantes"],
+    answer: 1
+  },
+  {
+    question: "Quels éléments sont essentiels dans un diagramme de cas d'utilisation ?",
+    options: ["Les acteurs", "Les classes", "Les cas d'utilisation", "Les relations"],
+    answer: [0, 2, 3]
+  },
+  {
+    question: "Que représente un acteur dans un diagramme de cas d'utilisation ?",
+    options: ["Une classe", "Une entité extérieure interagissant avec le système", "Une méthode", "Un objet interne au système"],
+    answer: 1
+  },
+  {
+    question: "Comment représente-t-on une frontière système dans un diagramme de cas d'utilisation ?",
+    options: ["Un rectangle englobant les cas d'utilisation", "Une ligne pointillée", "Un cercle", "Un losange"],
+    answer: 0
+  },
+  {
+    question: "Quelle relation est utilisée pour indiquer qu'un cas d'utilisation inclut toujours un autre cas d'utilisation ?",
+    options: ["Généralisation", "Association", "<<include>>", "<<extend>>"],
+    answer: 2
+  },
+  {
+    question: "Quelle relation est utilisée pour indiquer qu'un cas d'utilisation peut étendre un autre cas d'utilisation ?",
+    options: ["Généralisation", "<<extend>>", "<<include>>", "Héritage"],
+    answer: 1
+  },
+  {
+    question: "Un acteur peut-il être un système externe ?",
+    options: ["Oui", "Non"],
+    answer: 0
+  },
+  {
+    question: "Quelle est la principale différence entre <<include>> et <<extend>> ?",
+    options: [
+      "<<include>> est obligatoire, <<extend>> est optionnel",
+      "<<extend>> est obligatoire, <<include>> est optionnel",
+      "<<include>> est utilisé pour connecter deux acteurs",
+      "<<extend>> est utilisé pour représenter des relations de généralisation"
+    ],
+    answer: 0
+  },
+  {
+    question: "Dans quel cas utiliser la relation <<include>> ?",
+    options: [
+      "Pour une relation de dépendance entre deux cas d'utilisation",
+      "Pour une fonctionnalité toujours nécessaire",
+      "Pour une fonctionnalité optionnelle",
+      "Pour relier des acteurs entre eux"
+    ],
+    answer: 1
+  },
+  {
+    question: "Comment sont représentés les cas d'utilisation dans un diagramme ?",
+    options: ["Un rectangle", "Une ellipse", "Un losange", "Un cercle"],
+    answer: 1
+  },
+  {
+    question: "Comment est représentée une association entre un acteur et un cas d'utilisation ?",
+    options: ["Une ligne simple", "Une flèche pleine", "Une ligne pointillée", "Une ligne avec losange"],
+    answer: 0
+  },
+  {
+    question: "Un cas d'utilisation peut-il inclure plusieurs acteurs ?",
+    options: ["Oui", "Non"],
+    answer: 0
+  },
+  {
+    question: "Un acteur primaire dans un diagramme de cas d'utilisation :",
+    options: [
+      "Initie un cas d'utilisation",
+      "Participe en réponse au système",
+      "Ne communique pas directement avec le système",
+      "Ne peut interagir qu'avec un seul cas d'utilisation"
+    ],
+    answer: 0
+  },
+  {
+    question: "Quelle est l'utilité d'un paquetage (package) dans un diagramme de cas d'utilisation ?",
+    options: [
+      "Organiser et regrouper des cas d'utilisation",
+      "Relier des acteurs entre eux",
+      "Représenter des relations entre les cas d'utilisation",
+      "Créer des généralités entre les cas d'utilisation"
+    ],
+    answer: 0
+  },
+  {
+    question: "Dans UML, un cas d'utilisation <<extend>> :",
+    options: [
+      "Représente une fonctionnalité toujours nécessaire",
+      "Est optionnel et dépend d'une condition",
+      "Ne peut inclure qu'un acteur",
+      "Représente une relation entre deux acteurs"
+    ],
+    answer: 1
+  },
+  {
+    question: "Un acteur peut-il interagir avec plusieurs cas d'utilisation ?",
+    options: ["Oui", "Non"],
+    answer: 0
+  },
+  {
+    question: "Dans UML, une relation de généralisation est utilisée pour :",
+    options: [
+      "Relier deux cas d'utilisation similaires",
+      "Indiquer qu'un acteur hérite des responsabilités d'un autre",
+      "Représenter une relation entre un acteur et un cas d'utilisation",
+      "Associer un système externe à un cas d'utilisation"
+    ],
+    answer: 1
+  },
+  {
+    question: "Quelle est la règle concernant l'inclusion d'un cas d'utilisation dans un diagramme ?",
+    options: [
+      "Un cas d'utilisation doit être obligatoire pour tous les acteurs",
+      "Un cas d'utilisation doit représenter une fonctionnalité observable",
+      "Un cas d'utilisation peut être interne sans interaction avec un acteur",
+      "Un cas d'utilisation doit toujours être optionnel"
+    ],
+    answer: 1
+  },
+  {
+  question: "Dans un diagramme UML Use Case pour un distributeur automatique de billets, laquelle des relations suivantes illustre correctement un <<extend>> ?",
+  options: [
+    "(Consulter solde) ---<<extend>>---->(Authentifier)",
+    "(Authentifier) ---<<extend>>---->(Consulter solde)",
+    "(Retirer) ---<<extend>>---->(Imprimer reçu)",
+    "(Imprimer reçu) ---<<extend>>---->(Retirer)"
+  ],
+  answer: 3
+},
+{
+  question: "Dans un diagramme UML Use Case pour un distributeur automatique de billets, laquelle des relations suivantes illustre correctement un <<include>> ?",
+  options: [
+    "(Consulter solde) ---<<include>>---->(Authentifier)",
+    "(Authentifier) ---<<include>>---->(Consulter solde)",
+    "(Retirer) ---<<include>>---->(Imprimer reçu)",
+    "(Imprimer reçu) ---<<include>>---->(Retirer)"
+  ],
+  answer: 0
+},
+{
+  question: "Dans un système de gestion de bibliothèque, quelles relations de généralisation sont correctes entre acteurs ?",
+  options: [
+    "(Utilisateur) ---généralisation---> (Adhérent)",
+    "(Adhérent) ---généralisation---> (Utilisateur)",
+    "(Employé) ---généralisation---> (Administrateur)",
+    "(Administrateur) ---généralisation---> (Employé)"
+  ],
+  answer: [1, 3]
+},
+{
+  question: "Pour organiser un diagramme UML Use Case complexe d'une plateforme d'apprentissage en ligne, quels cas d'utilisation devraient être regroupés dans un paquetage 'Gestion des cours' ?",
+  options: [
+    "Ajouter un cours",
+    "Supprimer un cours",
+    "Créer un compte utilisateur",
+    "Afficher les cours disponibles"
+  ],
+  answer: [0, 1, 3]
+},
+
+  {
+    question: "Les relations <<include>> et <<extend>> relient :",
+    options: [
+      "Un acteur à un cas d'utilisation",
+      "Deux cas d'utilisation",
+      "Deux acteurs",
+      "Un système à un cas d'utilisation"
+    ],
+    answer: 1
+  },
+  {
+    question: "Un diagramme de cas d'utilisation est principalement utilisé pour :",
+    options: [
+      "Modéliser les interactions entre classes",
+      "Représenter les fonctionnalités d'un système du point de vue des utilisateurs",
+      "Décrire les relations entre objets",
+      "Concevoir les algorithmes internes d'un système"
+    ],
+    answer: 1
+  },
+  {
+    question: "Quelle est la meilleure pratique pour nommer un cas d'utilisation ?",
+    options: [
+      "Utiliser un verbe à l'infinitif décrivant l'action",
+      "Utiliser le nom de l'acteur",
+      "Utiliser un nom abstrait",
+      "Utiliser un acronyme pour économiser de l'espace"
+    ],
+    answer: 0
+  },
+  {
+    question: "Un acteur secondaire dans un diagramme de cas d'utilisation :",
+    options: [
+      "Ne communique pas directement avec le système",
+      "Initie toujours un cas d'utilisation",
+      "Ne peut interagir qu'avec un seul cas d'utilisation",
+      "Participe en réponse à une action du système"
+    ],
+    answer: 0
+  },
+  {
+    question: "Les limites d'un diagramme de cas d'utilisation :",
+    options: [
+      "Représentent les frontières fonctionnelles du système",
+      "Représentent uniquement les relations entre les acteurs",
+      "Doivent inclure uniquement les relations optionnelles",
+      "Ne peuvent pas être modifiées après la conception"
+    ],
+    answer: 0
+  }
+];
+
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+    const incorrectAnswers = []; // Tableau pour stocker les mauvaises réponses
+
+    const questionEl = document.getElementById("question");
+    const optionsEl = document.getElementById("options");
+    const nextButton = document.getElementById("next");
+    const resultEl = document.getElementById("result");
+    const incorrectAnswersEl = document.getElementById("incorrect-answers");
+
+    function loadQuestion() {
+      const currentQuestion = questions[currentQuestionIndex];
+      questionEl.textContent = currentQuestion.question;
+      optionsEl.innerHTML = "";
+      currentQuestion.options.forEach((option, index) => {
+        const optionHTML = `
+          <label>
+            <input type="checkbox" name="option" value="${index}">
+            ${option}
+          </label>
+        `;
+        optionsEl.insertAdjacentHTML("beforeend", optionHTML);
+      });
+    }
+
+    function showResult() {
+      document.getElementById("quiz").style.display = "none";
+      resultEl.style.display = "block";
+      resultEl.textContent = `Ton score : ${score}/${questions.length}`;
+
+      // Afficher les mauvaises réponses
+      if (incorrectAnswers.length > 0) {
+        incorrectAnswersEl.style.display = "block";
+        incorrectAnswersEl.innerHTML = "<h3>Mauvaises réponses :</h3>";
+
+        incorrectAnswers.forEach((item) => {
+          const question = questions[item.index];
+          let optionsHTML = "";
+
+          question.options.forEach((option, index) => {
+            if (item.chosen.includes(index)) {
+              // Réponse choisie par l'utilisateur (toujours verte)
+              optionsHTML += `<p class="chosen">${option}</p>`;
+            } else if (item.correct.includes(index)) {
+              // Bonne réponse non choisie (bordure verte)
+              optionsHTML += `<p class="correct">${option}</p>`;
+            } else {
+              // Autres options en noir
+              optionsHTML += `<p>${option}</p>`;
+            }
+          });
+
+          incorrectAnswersEl.insertAdjacentHTML(
+            "beforeend",
+            `<div>
+              <h4>Question ${item.index + 1} :</h4>
+              <p><strong>${question.question}</strong></p>
+              ${optionsHTML}
+              <hr>
+            </div>`
+          );
+        });
+      }
+    }
+
+    nextButton.addEventListener("click", () => {
+      const selectedOptions = Array.from(document.querySelectorAll("input[name='option']:checked")).map(
+        (option) => parseInt(option.value)
+      );
+      const correctAnswers = Array.isArray(questions[currentQuestionIndex].answer)
+        ? questions[currentQuestionIndex].answer
+        : [questions[currentQuestionIndex].answer];
+
+      // Vérifier si les réponses choisies correspondent aux bonnes réponses
+      const isCorrect =
+        selectedOptions.length === correctAnswers.length &&
+        selectedOptions.every((value) => correctAnswers.includes(value));
+
+      if (isCorrect) {
+        score++;
+      } else {
+        // Stocker les mauvaises réponses pour un choix multiple
+        incorrectAnswers.push({
+          index: currentQuestionIndex,
+          chosen: selectedOptions,
+          correct: correctAnswers
+        });
+      }
+
+      currentQuestionIndex++;
+      if (currentQuestionIndex < questions.length) {
+        loadQuestion();
+        document.getElementById("CurrentNumQuestion").innerHTML = currentQuestionIndex + 1;
+      } else {
+        showResult();
+      }
+    });
+
+    document.getElementById("answer").addEventListener("click", () => {
+      const correctAnswers = Array.isArray(questions[currentQuestionIndex].answer)
+        ? questions[currentQuestionIndex].answer
+        : [questions[currentQuestionIndex].answer];
+
+      // Appliquer une bordure verte aux bonnes réponses
+      correctAnswers.forEach((index) => {
+        const correctOption = optionsEl.children[index];
+        correctOption.style.border = "2px solid green";
+      });
+    });
+
+    loadQuestion();
+
+    // Afficher le nombre total de questions
+    document.getElementById("NbQuestions").innerHTML = questions.length;
+  </script>
+</body>
+</html>
